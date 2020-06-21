@@ -139,7 +139,6 @@ function SuffixTree:positions_with_substring(needle)
       if not node then return {} end
       edge = node.edges[sub(needle, i, i)]
       if not edge then return {} end
-      i = i + 1
     end
   end
   ::matched::
@@ -178,8 +177,7 @@ function SuffixTree:segments_with_substring(needle)
   local out = {}
   local positions = self:positions_with_substring(needle)
   for k, match_start in pairs(positions) do
-    self.rope:seek(match_start)
-    out[self.rope:get_current_segment()] = true
+    out[self.rope:get_segment(match_start)] = true
   end
   return out
 end
