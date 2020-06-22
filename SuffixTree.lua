@@ -187,7 +187,7 @@ local meta = { __index = SuffixTree }
 local function restore(self)
   Rope.restore(self.rope)
   setmetatable(self.empty, {__index = function()
-    return { -9e15, -9e15, root, }
+    return { -9e15, -9e15, self.root, }
   end})
   return setmetatable(self, meta)
 end

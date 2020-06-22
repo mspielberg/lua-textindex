@@ -33,9 +33,9 @@ describe("A SuffixTree should", function()
     st:run_once()
     st:run_once()
     st:run_once()
-    assert.is.not_nil(st.root.edges['a'])
-    assert.is_not_nil(st.root.edges['b'])
-    assert.is_not_nil(st.root.edges['c'])
+    assert.is.not_nil(st.root['a'])
+    assert.is_not_nil(st.root['b'])
+    assert.is_not_nil(st.root['c'])
   end)
   it("be constructible from a string with no repeats", function()
     local input = Rope.new()
@@ -88,11 +88,11 @@ describe("A SuffixTree should", function()
 
   describe("should create the expected output for known input", function()
     local function assert_pos(st, path, expected_pos)
-      local edge = st.root.suffix_link.edges[""]
+      local edge = st.empty[""]
       for i=1,#path do
-        edge = edge.next.edges[string.sub(path, i, i)]
+        edge = edge[3][string.sub(path, i, i)]
       end
-      assert.are.same(expected_pos, edge.start_pos)
+      assert.are.same(expected_pos, edge[1])
     end
 
     it("ban", function()
