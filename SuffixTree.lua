@@ -196,7 +196,7 @@ end
 local function new(rope)
   local root = {}
   local self = {
-    rope = rope,
+    rope = rope or Rope.new(),
     empty = {},
     root = root,
     k = 1,
