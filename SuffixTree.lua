@@ -68,6 +68,7 @@ local function test_and_split(self, s, k, p, t)
     local new_node = {
       [split_char] = {split_pos, pp, sp}
     }
+    self.nodes[#self.nodes+1] = new_node
     s[tk][2] = split_pos - 1
     s[tk][3] = new_node
     return false, new_node
@@ -197,12 +198,13 @@ local function new(rope)
   local root = {}
   local self = {
     rope = rope or Rope.new(),
+    nodes = {},
     empty = {},
-    root = root,
     k = 1,
     i = 0,
-    s = root,
   }
+  self.root = root
+  self.s = root
   self.root.suffix_link = self.empty
   return restore(self)
 end
