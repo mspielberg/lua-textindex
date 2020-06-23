@@ -92,8 +92,12 @@ function Rope:append_segment(str)
   self.length = self.length + #str
 end
 
-function Rope:compact()
+---@param pos number if provided, only compact if pos characters are not
+---                  available in compacted region
+function Rope:compact(pos)
   if #self.segments <= 1 then return end
+  if pos and self.segments[1] and #self.segments[1] > pos then return end
+
   local pos = #self.segments[1] + 1
   local starts = self.starts
   for i=2,#self.segments do
