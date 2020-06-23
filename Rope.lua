@@ -93,6 +93,7 @@ function Rope:append_segment(str)
 end
 
 function Rope:compact()
+  if #self.segments <= 1 then return end
   local pos = #self.segments[1] + 1
   local starts = self.starts
   for i=2,#self.segments do
