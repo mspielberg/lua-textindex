@@ -1,5 +1,6 @@
 local floor = math.floor
 local function binsearch(a, x)
+  assert(type(x) == "number")
   local left = 1
   local right = #a
   local mid = 1
@@ -56,10 +57,13 @@ local function word_from_index(self, word_index)
   return sub(self.segments[1], start_pos, end_pos and end_pos-1)
 end
 
+local function index_from_pos(self, pos)
+  return binsearch(self.starts, pos)
+end
+
 local function word_from_pos(self, pos)
   assert(pos >= 1 and pos <= #self.segments[1])
-  local index = binsearch(self.starts, pos)
-  return word_from_index(self, index)
+  return word_from_index(self, index_from_pos(self, pos))
 end
 
 local function get_current_segment(self)
@@ -98,7 +102,7 @@ function Rope:compact(pos)
   if #self.segments <= 1 then return end
   if pos and self.segments[1] and #self.segments[1] > pos then return end
 
-  local pos = #self.segments[1] + 1
+  pos = #self.segments[1] + 1
   local starts = self.starts
   for i=2,#self.segments do
     starts[#starts+1] = pos
@@ -110,6 +114,24 @@ function Rope:compact(pos)
   self.current_segment_index = 1
   self.segment_pos = self.char_pos
 end
+
+local find = string.find
+function Rope:segments_with_substring(needle)
+  if self.length < 1 then return {} end
+  self:compact()
+  local merged = self.segments[1]
+  local out = {}
+  local _, pos = find(merged, needle, 1, true)
+  local index = 0
+  while pos and self.starts[index+1] do
+    index = index_from_pos(self, pos)
+    out[#out+1] = word_from_index(self, index)
+    -- start at next segment
+    _, pos = find(merged, needle, self.starts[index+1], true)
+  end
+  return out
+end
+
 
 local meta = { __index = Rope }
 
