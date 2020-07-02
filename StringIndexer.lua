@@ -36,17 +36,65 @@ function StringIndexer:word_from_pos(pos)
   return word_from_index(self, index)
 end
 
+local byte = string.byte
+local char = string.char
+function StringIndexer:find_words(needle)
+  -- abc -> abc\0
+  local start = binsearch(self.sa_proxy, needle .. "\0")
+  if sub(self.sa_proxy[start], 1, #needle) ~= needle then
+    start = start + 1
+  end
+
+  -- abc -> abd\0
+  local last_str = sub(needle, 1, -2) .. char(byte(sub(needle, -1)) + 1, 0)
+  local last = binsearch(self.sa_proxy, last_str)
+  if sub(self.sa_proxy[last], 1, #last_str) == last_str then
+    last = last - 1
+  end
+
+  local words = {}
+  for i = start, last do
+    words[self:word_from_pos(self.suffix_array[i])] = true
+  end
+  return words
+end
+
+-- super naive construction, investigate SA-IS algorithm if necessary later
+local function create_suffix_array(text)
+  local sa = {}
+  for i=1,#text do sa[i] = i end
+  table.sort(sa, function(a, b) return sub(text, a) < sub(text, b) end)
+  return sa
+end
+
+local proxy_meta = {
+  __index = function(self, index)
+    return sub(self.merged, self.suffix_array[index])
+  end,
+  __len = function(self)
+    return #self.suffix_array
+  end,
+}
+
 local function new(strings)
   local self = setmetatable({}, { __index = StringIndexer })
+  self.merged = table.concat(strings)
+
   local pos = 1
-  local list = {}
   self.starts = {}
   for _, str in pairs(strings) do
-    list[#list+1] = str
     self.starts[#self.starts+1] = pos
     pos = pos + #str
   end
-  self.merged = table.concat(list)
+
+  self.suffix_array = create_suffix_array(self.merged)
+  -- fake table that can be indexed to get the nth suffix in lexicographic order
+  -- of the merged list
+  self.sa_proxy = setmetatable({
+    merged = self.merged,
+    suffix_array = self.suffix_array,
+  }, proxy_meta)
+
   return self
 end
 

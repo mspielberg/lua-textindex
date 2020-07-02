@@ -11,7 +11,7 @@
             "program": {
                 "command": "busted"
             },
-            "args": ["spec/SuffixTree_spec.lua"]
+            "args": ["spec/StringIndexer_spec.lua"]
         }
     ]
 }
