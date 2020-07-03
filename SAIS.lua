@@ -192,7 +192,7 @@ local function new(str)
   local SA = {}
   sa_is(create_stringarray(str), SA, #str, 256)
   -- reorganize to 1-indexed
-  for i=#SA+1,0,-1 do SA[i] = SA[i-1] end
+  for i=#SA+1,1,-1 do SA[i] = SA[i-1] + 1 end
   SA[0] = nil
   return SA
 end
