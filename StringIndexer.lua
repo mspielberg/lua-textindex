@@ -1,3 +1,5 @@
+local SAIS = require "SAIS"
+
 local StringIndexer = {}
 
 local floor = math.floor
@@ -23,22 +25,22 @@ local function binsearch(a, x)
 end
 
 local sub = string.sub
-local function word_from_index(self, word_index)
+local function segment_from_index(self, word_index)
   local starts = self.starts
   local start_pos = starts[word_index]
   local end_pos = starts[word_index+1]
   return sub(self.merged, start_pos, end_pos and end_pos-1)
 end
 
-function StringIndexer:word_from_pos(pos)
+function StringIndexer:segment_from_pos(pos)
   assert(pos >= 1 and pos <= #self.merged)
   local index = binsearch(self.starts, pos)
-  return word_from_index(self, index)
+  return segment_from_index(self, index)
 end
 
 local byte = string.byte
 local char = string.char
-function StringIndexer:find_words(needle)
+function StringIndexer:segments_with_substring(needle)
   -- abc -> abc\0
   local start = binsearch(self.sa_proxy, needle .. "\0")
   if sub(self.sa_proxy[start], 1, #needle) ~= needle then
@@ -54,17 +56,13 @@ function StringIndexer:find_words(needle)
 
   local words = {}
   for i = start, last do
-    words[self:word_from_pos(self.suffix_array[i])] = true
+    words[self:segment_from_pos(self.suffix_array[i])] = true
   end
   return words
 end
 
--- super naive construction, investigate SA-IS algorithm if necessary later
 local function create_suffix_array(text)
-  local sa = {}
-  for i=1,#text do sa[i] = i end
-  table.sort(sa, function(a, b) return sub(text, a) < sub(text, b) end)
-  return sa
+  return SAIS.new(text)
 end
 
 local proxy_meta = {
